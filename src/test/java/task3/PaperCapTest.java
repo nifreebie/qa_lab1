@@ -5,35 +5,36 @@ import nifreebie.task3.domain.PaperCap;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.DoubleSupplier;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PaperCapTest {
-    private static Location location;
+
+    private static Location destination;
 
     @BeforeAll
-    public static void setUp() {
-        location = new Location("дальняя Вселенная") {};
+    static void setup() {
+        destination = new Location("дальняя Вселенная") {};
     }
 
     @Test
-    public void paperCap_should_torn_when_random_lt_threshold() {
-        DoubleSupplier alwaysLow = () -> 0.10;
-        PaperCap cap = new PaperCap(alwaysLow);
-        boolean res = cap.sail(location);
-        assertFalse(res);
+    void sail_whenRandomLessThanThreshold_becomesTornAndReturnsFalse() {
+        PaperCap cap = new PaperCap(() -> 0.1);
+
+        boolean result = cap.sail(destination);
+
+        assertFalse(result);
         assertTrue(cap.isTorn());
         assertNull(cap.getLocation());
     }
 
     @Test
-    public void paperCap_should_sail_when_random_ge_threshold() {
-        DoubleSupplier alwaysHigh = () -> 0.5;
-        PaperCap cap = new PaperCap(alwaysHigh);
-        boolean res = cap.sail(location);
-        assertTrue(res);
+    void sail_whenRandomAboveThreshold_setsLocationAndReturnsTrue() {
+        PaperCap cap = new PaperCap(() -> 0.2);
+
+        boolean result = cap.sail(destination);
+
+        assertTrue(result);
         assertFalse(cap.isTorn());
-        assertEquals(location, cap.getLocation());
+        assertEquals(destination, cap.getLocation());
     }
 }

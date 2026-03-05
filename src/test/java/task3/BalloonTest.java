@@ -2,17 +2,28 @@ package task3;
 
 import nifreebie.task3.domain.Balloon;
 import nifreebie.task3.domain.Location;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BalloonTest {
+
+    private static Location destination;
+
+    @BeforeAll
+    static void setup() {
+        destination = new Location("дальняя Вселенная") {};
+    }
+
     @Test
-    public void balloon_should_sail_to_universe() {
-        Location universe = new Location("дальняя Вселенная") {};
-        Balloon b = new Balloon();
-        assertTrue(b.sail(universe));
-        assertEquals(universe, b.getLocation());
+    void balloon_sail_setsLocationAndReturnsTrue() {
+        Balloon balloon = new Balloon();
+
+        boolean result = balloon.sail(destination);
+
+        assertTrue(result);
+        assertEquals(destination, balloon.getLocation());
     }
 }

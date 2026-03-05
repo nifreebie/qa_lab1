@@ -4,16 +4,27 @@ import nifreebie.task3.domain.CauseOfDeath;
 import nifreebie.task3.domain.MarketAnalyst;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.EnumSet;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MarketAnalystTest {
+
     @Test
-    public void marketAnalyst_dies_with_both_causes_and_location_null_after_event() {
+    void die_withCauses_setsIsAliveFalseAndStoresCauses() {
         MarketAnalyst ma = new MarketAnalyst(3.0);
+
         ma.die(CauseOfDeath.SUFFOCATION, CauseOfDeath.AMAZEMENT);
+
         assertFalse(ma.isAlive());
-        assertTrue(ma.getCauses().contains(CauseOfDeath.SUFFOCATION));
-        assertTrue(ma.getCauses().contains(CauseOfDeath.AMAZEMENT));
+        EnumSet<CauseOfDeath> causes = ma.getCauses();
+        assertTrue(causes.contains(CauseOfDeath.SUFFOCATION));
+        assertTrue(causes.contains(CauseOfDeath.AMAZEMENT));
+    }
+
+    @Test
+    void die_withoutCauses_throwsIllegalArgumentException() {
+        MarketAnalyst ma = new MarketAnalyst(3.0);
+        assertThrows(IllegalArgumentException.class, ma::die);
     }
 }

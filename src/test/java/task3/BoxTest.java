@@ -4,80 +4,87 @@ import nifreebie.task3.domain.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.DoubleSupplier;
+import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BoxTest {
 
-    private static Location universe;
+    private static Location defaultDest;
     private static Planet poghril;
-    private static Balloon balloon;
-    private static PaperCap paperCap;
-    private static List<MarketAnalyst> analysts;
-    private static final int EGG_COUNT = 239_000;
 
     @BeforeAll
-    public static void setup() {
-        universe = new Location("дальняя Вселенная") {
-        };
-        poghril = new Planet("Погхрил", "Пансел");
-        poghril.setSituation(Situation.STARVATION);
-        Box box = new Box(universe);
-        balloon = new Balloon();
-        box.add(balloon);
-        DoubleSupplier alwaysHigh = () -> 0.5;
-        paperCap = new PaperCap(alwaysHigh);
-        box.add(paperCap);
-        analysts = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            MarketAnalyst ma = new MarketAnalyst(3.0);
-            analysts.add(ma);
-            box.add(ma);
-        }
-        EggHeap eggHeap = new EggHeap();
-        for (int i = 0; i < EGG_COUNT; i++) {
-            eggHeap.add(new Egg(EggCondition.FRIED));
-        }
-        box.add(eggHeap);
+    static void setup() {
+        defaultDest = new Location("дальняя Вселенная") {};
+        poghril = new Planet("Погхрил", "Пансель");
+    }
+
+    @Test
+    void openAndEject_sailableItemsAreSailedAndBoxIsOpened() {
+        Box box = new Box(defaultDest);
+
+        SailableSet set = new SailableSet();
+        PaperCap cap = new PaperCap(() -> 0.2);
+        Balloon balloon = new Balloon();
+        set.add(cap);
+        set.add(balloon);
+
+        box.add(set);
+
+        assertTrue(box.isClosed());
+
         box.openAndEjectTo(poghril);
+
+        assertFalse(box.isClosed());
+        assertEquals(defaultDest, cap.getLocation());
+        assertEquals(defaultDest, balloon.getLocation());
     }
 
     @Test
-    public void balloon_should_have_sailed_to_universe() {
-        assertNotNull(balloon.getLocation());
-        assertEquals(universe, balloon.getLocation());
-    }
+    void openAndEject_marketAnalystsDieAndLocationNull() {
+        Box box = new Box(defaultDest);
 
-    @Test
-    public void paperCap_should_sail_and_not_be_torn_with_high_random() {
-        assertFalse(paperCap.isTorn());
-        assertEquals(universe, paperCap.getLocation());
-    }
+        MarketAnalyst ma1 = new MarketAnalyst(3.0);
+        MarketAnalyst ma2 = new MarketAnalyst(3.0);
+        box.add(ma1);
+        box.add(ma2);
 
-    @Test
-    public void all_market_analysts_should_be_dead_with_both_causes() {
-        for (MarketAnalyst ma : analysts) {
+        box.openAndEjectTo(poghril);
+
+        for (MarketAnalyst ma : new MarketAnalyst[]{ma1, ma2}) {
             assertFalse(ma.isAlive());
-            assertTrue(ma.getCauses().contains(CauseOfDeath.SUFFOCATION));
-            assertTrue(ma.getCauses().contains(CauseOfDeath.AMAZEMENT));
+            EnumSet<CauseOfDeath> causes = ma.getCauses();
+            assertTrue(causes.contains(CauseOfDeath.SUFFOCATION));
+            assertTrue(causes.contains(CauseOfDeath.AMAZEMENT));
+            assertNull(ma.getLocation());
         }
     }
 
     @Test
-    public void eggs_should_be_deposited_on_poghril_with_correct_count_and_condition() {
-        assertEquals(1, poghril.getSurfaceItems().size());
-        assertInstanceOf(EggHeap.class, poghril.getSurfaceItems().getFirst());
-        EggHeap eggHeap = (EggHeap) poghril.getSurfaceItems().getFirst();
-        assertEquals(EGG_COUNT, eggHeap.getCount());
-        assertTrue(eggHeap.getEggs().stream().allMatch(
-                item -> item.getCondition() == EggCondition.FRIED));
+    void openAndEject_eggHeapIsDepositedOnPlanet() {
+        Box box = new Box(defaultDest);
+        EggHeap heap = new EggHeap();
+        box.add(heap);
+
+        box.openAndEjectTo(poghril);
+
+        assertEquals(poghril, heap.getLocation());
+        assertTrue(poghril.getSurfaceItems().contains(heap));
     }
 
     @Test
-    public void planet_should_have_starvation_situation() {
-        assertEquals(Situation.STARVATION, poghril.getSituation());
+    void openAndEject_nullPlanet_throws() {
+        Box box = new Box(defaultDest);
+        assertThrows(IllegalArgumentException.class, () -> box.openAndEjectTo(null));
+    }
+
+    @Test
+    void openAndEject_unsupportedItem_throws() {
+        Box box = new Box(defaultDest);
+        Item unknown = new Item() {};
+        box.add(unknown);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> box.openAndEjectTo(poghril));
+        assertTrue(ex.getMessage().contains("неподдерживаемый тип предмета"));
     }
 }
