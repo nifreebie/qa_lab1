@@ -1,7 +1,5 @@
 package nifreebie.task3.domain;
 
-import java.util.UUID;
-
 public class Balloon extends Item implements Sailable {
     public Balloon() {
         super();

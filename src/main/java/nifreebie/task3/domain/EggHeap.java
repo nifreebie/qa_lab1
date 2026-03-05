@@ -2,27 +2,20 @@ package nifreebie.task3.domain;
 
 import lombok.Getter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.PriorityQueue;
 
 @Getter
 public class EggHeap extends Item{
     private int count;
-    private final Set<Egg> eggs;
+    private final PriorityQueue<Egg> eggs;
 
     public EggHeap() {
         super();
-        this.eggs = new HashSet<>();
+        this.eggs = new PriorityQueue<>();
     }
 
     public void add(Egg egg) {
         eggs.add(egg);
         count++;
-    }
-
-    void remove(Egg egg) {
-        if(count == 0) return;
-        eggs.remove(egg);
-        count--;
     }
 }

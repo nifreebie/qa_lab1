@@ -1,9 +1,9 @@
-package nifreebie.task3.domain;// Box.java
+package nifreebie.task3.domain;
+
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 public class Box {
@@ -23,6 +23,7 @@ public class Box {
         closed = false;
         for (Item it : new ArrayList<>(contents)) {
             switch (it) {
+                case SailableSet set -> set.getSailableItems().forEach( item -> item.sail(defaultUniverseDestination));
                 case Balloon balloon -> balloon.sail(defaultUniverseDestination);
                 case PaperCap paperCap -> paperCap.sail(defaultUniverseDestination);
                 case MarketAnalyst marketAnalyst -> {
@@ -30,7 +31,7 @@ public class Box {
                     marketAnalyst.setLocation(null);
                 }
                 case EggHeap eggHeap -> planet.deposit(eggHeap);
-                case null, default -> throw new IllegalArgumentException("неподдерживаемых тип предмета: " + it.getClass());
+                case null, default -> throw new IllegalArgumentException("неподдерживаемый тип предмета: " + it.getClass());
             }
         }
     }
