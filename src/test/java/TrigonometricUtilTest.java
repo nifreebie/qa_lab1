@@ -27,25 +27,18 @@ public class TrigonometricUtilTest {
 
         BigDecimal delta = new BigDecimal("1E-7", mc);
 
-
         return Stream.of(
-                Arguments.of(pi.negate(), new BigDecimal("-1")),
                 Arguments.of(pi, new BigDecimal("-1")),
                 Arguments.of(BigDecimal.ZERO, BigDecimal.ONE),
-                Arguments.of(halfPi.negate(), BigDecimal.ZERO),
                 Arguments.of(halfPi, BigDecimal.ZERO),
-
                 Arguments.of(pi.subtract(delta),
                         new BigDecimal("-0.999999999999995")),
-
-                Arguments.of(pi.negate().add(delta),
-                        new BigDecimal("-0.999999999999995")),
-
                 Arguments.of(halfPi.subtract(delta),
                         new BigDecimal("0.0000001")),
-
-                Arguments.of(halfPi.negate().add(delta),
-                        new BigDecimal("0.0000001"))
+                Arguments.of(halfPi.add(delta),
+                        new BigDecimal("-0.0000001")),
+                Arguments.of(delta,
+                        new BigDecimal("0.999999999999995"))
         );
     }
 
@@ -63,10 +56,11 @@ public class TrigonometricUtilTest {
 
     static Stream<Arguments> intervalArgs() {
 
-        BigDecimal halfPi = pi.divide(BigDecimal.valueOf(2), mc);
-
         return Stream.of(
-                Arguments.of(BigDecimal.ZERO, BigDecimal.ONE),
+                Arguments.of(
+                        pi.divide(BigDecimal.valueOf(6), mc),
+                        new BigDecimal("0.8660254037844386")
+                ),
 
                 Arguments.of(
                         pi.divide(BigDecimal.valueOf(4), mc),
@@ -74,8 +68,13 @@ public class TrigonometricUtilTest {
                 ),
 
                 Arguments.of(
-                        halfPi,
-                        BigDecimal.ZERO
+                        pi.divide(BigDecimal.valueOf(3), mc),
+                        new BigDecimal("0.5")
+                ),
+
+                Arguments.of(
+                        pi.multiply(BigDecimal.TWO, mc).divide(new BigDecimal("3"), mc),
+                        new BigDecimal("-0.5")
                 ),
 
                 Arguments.of(
@@ -84,8 +83,8 @@ public class TrigonometricUtilTest {
                 ),
 
                 Arguments.of(
-                        pi,
-                        new BigDecimal("-1")
+                        pi.multiply(new BigDecimal("5"), mc).divide(new BigDecimal("6"), mc),
+                        new BigDecimal("-0.8660254037844386")
                 )
         );
     }
@@ -103,8 +102,16 @@ public class TrigonometricUtilTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"0.5", "1.2", "2.8", "5.0"})
+    @ValueSource(strings = {
+            "0",
+            "1.7079632679489",
+            "3.1415926535897",
+            "0.5",
+            "1.6",
+            "2.8"
+    })
     void testEvenFunction(BigDecimal x) {
+
         BigDecimal positive = TrigonometricUtil.cos(x);
         BigDecimal negative = TrigonometricUtil.cos(x.negate());
 

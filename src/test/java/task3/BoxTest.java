@@ -75,7 +75,8 @@ public class BoxTest {
     @Test
     void openAndEject_nullPlanet_throws() {
         Box box = new Box(defaultDest);
-        assertThrows(IllegalArgumentException.class, () -> box.openAndEjectTo(null));
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> box.openAndEjectTo(null));
+        assertEquals("планеты не должна быть null", ex.getMessage());
     }
 
     @Test

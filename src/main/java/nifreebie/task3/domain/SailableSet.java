@@ -11,7 +11,7 @@ public class SailableSet extends Item {
 
     public SailableSet() {
         super();
-        this.sailableItems = new HashSet<Sailable>();
+        this.sailableItems = new HashSet<>();
     }
 
     public void add(Sailable sailable) {
